@@ -1,0 +1,47 @@
+[project]
+name = "whisper-flow"
+version = "0.1.0"
+description = "Voice dictation backend: speech-to-text + LLM cleanup with pluggable API providers"
+readme = "README.md"
+authors = [
+    { name = "River", email = "iamrivershenshuhe@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi>=0.141.1",
+    "openai>=3.19.2",
+    "platformdirs>=4.11.13",
+    "pydantic>=2.13.5",
+    "python-dotenv>=1.2.3",
+    "python-multipart>=0.0.32",
+    "uvicorn>=0.54.0",
+]
+
+[project.scripts]
+whisper-flow = "whisper_flow:main"
+
+[project.optional-dependencies]
+mic = [
+    "numpy>=2.5.3",
+    "sounddevice>=0.5.6",
+]
+
+[build-system]
+requires = ["uv_build>=0.12.13,<0.13.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28.1",
+    "pytest>=9.1.1",
+    "ruff>=0.16.9",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

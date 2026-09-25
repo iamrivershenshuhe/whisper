@@ -1,0 +1,74 @@
+# 複製成 config.toml（放在專案根目錄，或 `whisper-flow config` 顯示的使用者設定目錄）後修改。
+# 所有欄位都有預設值，只需要寫你想改的部分。
+
+# 個人字典：專有名詞、人名、品牌名。會同時提示語音辨識和潤稿模型。
+dictionary = ["Claude", "Notion", "uv"]
+
+# 沒有對應 app 規則時使用的風格
+default_style = "default"
+
+[asr]
+provider = "openai"          # 對應 [providers.<名稱>]
+model = "gpt-transcribe"
+languages = ["zh", "en"]     # 語言提示，中英夾雜
+send_keywords = true         # 把字典當 keywords 傳送（只有 gpt-transcribe 支援；whisper-1 請設 false）
+
+[llm]
+provider = "openai"
+model = "gpt-6-luna"
+reasoning_effort = "none"    # 最低延遲；供應商不支援此參數時設為 ""（就不會傳送）
+# temperature = 0.2
+
+[cleanup]
+enabled = true
+locale = "zh-TW"             # zh-TW：繁體中文＋全形標點；zh-CN：簡體
+instructions = ""            # 額外的潤稿規則，例如 "不要使用 emoji。"
+
+# ---- API 供應商 ----
+# type = "openai" 可以接任何 OpenAI 相容的 API，只要換 base_url 和金鑰的環境變數。
+[providers.openai]
+type = "openai"
+api_key_env = "OPENAI_API_KEY"
+timeout = 30
+
+# 範例：用 Groq 做語音辨識
+# [providers.groq]
+# type = "openai"
+# base_url = "https://api.groq.com/openai/v1"
+# api_key_env = "GROQ_API_KEY"
+#
+# 然後在 [asr] 設定 provider = "groq"、model = "whisper-large-v3"、send_keywords = false
+
+# ---- 語音快捷片語 ----
+# 整句只說出觸發詞時，直接輸出 text（不經過 LLM）。
+[[snippets]]
+triggers = ["電子郵件", "我的信箱"]
+text = "example@gmail.com"
+
+# ---- 風格與 app 對應 ----
+# 內建風格：default、casual、formal。可以在這裡覆寫或新增。
+[styles.code]
+description = "Technical notes. Keep code identifiers, file names, and commands verbatim."
+
+# 寫了 [[apps]] 就會取代內建規則（內建規則：LINE/Messenger/Discord… → casual，Notion/Word/Gmail… → formal）。
+# match 會用不分大小寫的子字串比對 client 傳來的 app（程式名稱、視窗標題或網址）。
+[[apps]]
+match = ["line", "messenger", "discord", "telegram", "slack"]
+style = "casual"
+
+[[apps]]
+match = ["notion", "winword", "docs.google.com", "gmail", "outlook"]
+style = "formal"
+
+[[apps]]
+match = ["code.exe", "cursor", "windowsterminal"]
+style = "code"
+
+[history]
+enabled = true
+save_audio = true
+# data_dir = "D:/whisper-flow-data"   # 預設為使用者資料目錄
+
+[server]
+host = "127.0.0.1"   # 沒有驗證機制，請只綁 localhost
+port = 8765
